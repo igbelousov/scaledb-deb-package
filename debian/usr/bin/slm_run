@@ -1,0 +1,190 @@
+#!/bin/bash
+
+#
+# ScaleDB Cluster Manager Startup script
+#
+
+#
+# $Id: slm_run,v 1.1 2015-12-18 00:18:18 igor Exp $
+#
+
+# 
+# usage information 
+#
+print_help_and_exit () {
+
+	echo ""
+	echo "Usage: slm_run -f config_file [ Options ]"
+	echo ""
+	echo "Options:"
+	echo "			-f config_file		 Path to the global configuration [$def_conf_file]"
+	echo "			-b scaledb_bin_dir	 Path to the scaledb binaries	 [$def_bin_dir]"
+	echo "			-d 					 Run as daemon"
+	echo "			-T 					 Dont test CAS connection"
+	echo "			-h					 Display this help"
+	echo "			-v					 Explains what it does"
+	echo ""
+	echo "Examples:"
+
+	echo "			slm_run -f /etc/scaledb_slm.cnf "
+	echo ""
+
+	exit 0
+}
+
+exit_msg () {
+	echo "$@"
+	exit 1
+}
+
+say () {
+	[ "$verbose" ] && echo "$@"
+}
+
+if [ $# -eq 0 ];then
+	print_help_and_exit
+fi
+
+daemon=
+shard_id=1
+scripts_dir=`dirname $0`
+parent_dir=$scripts_dir/../
+
+# to look better in ps output (avoiding /../..)
+cd $parent_dir
+def_bin_dir="$PWD/lib"
+def_lib_dir="$PWD/lib"
+def_conf_dir="$PWD/conf"
+def_conf_file="$def_conf_dir/scaledb_slm.cnf"
+cd $OLDPWD
+
+say def_conf_dir = $def_conf_dir
+
+TEMP=`/usr/bin/getopt 'f:b:hTdv' "$@"`
+
+if [ $? != 0 ] ; then
+	echo "usage error: parsing command-line arguments" >&2
+	exit 1
+fi
+
+eval set -- "$TEMP"
+while true ; do
+	case "$1" in
+		-b) bin_dir="$2"			;	shift 2 ;;
+		-f) conf_file="$2"		;	shift 2 ;;
+		-h) help="y"				;	shift 1 ;;
+		-T) no_nc="y"				;	shift 1 ;;
+		-d) daemon="y"				;	shift 1 ;;
+		-v) verbose="y"			;	shift 1 ;;
+		--) shift				 ;	break	;;
+		*) echo "getopt error: parsing command line arguments" >&2 ; exit 1 ;;
+	esac
+done
+
+if [ "$help" ];then 
+	print_help_and_exit
+fi
+
+#
+# Determine where is config directory
+# with respect to scripts directory
+#
+if	[ "$conf_file" ];then
+	conf_dir=`dirname $conf_file`
+else
+	conf_file=$def_conf_file
+fi
+
+#
+# Exit when file is missing
+#
+[ -f "$conf_file" ] || exit_msg "error: failed to open file - $conf_file"
+[ -w "$conf_file" ] || exit_msg "error: file should be writable - $conf_file"
+
+#
+# Find ip and port
+#
+ip=`grep "^ *slm_ip" $conf_file | tail -n 1 | cut -d '=' -f 2 `
+ip=${ip// /}
+say "extracted ip=$ip"
+[ "$ip" ] || {
+	exit_msg "Config Error: $conf_file - missing slm_ip"
+}
+
+port=`grep "^ *slm_port" $conf_file | tail -n 1 |  cut -d '=' -f 2 `
+port=${port// /}
+say "extracted port=$port"
+[ "$port" ] || exit_msg "Config Error: $conf_file - missing slm_port"
+
+#
+# verify config parameters
+#
+conf_ips=`grep "^ *scaledb_cas_config_ips" $conf_file | tail -n 1 | cut -d '=' -f 2 `
+conf_ips=${conf_ips// /}
+#say "extracted ip=$ip"
+[ "$conf_ips" ] || {
+	exit_msg "Config Error: $conf_file - missing scaledb_cas_config_ips"
+}
+
+conf_ports=`grep "^ *scaledb_cas_config_ports" $conf_file | tail -n 1 | cut -d '=' -f 2 `
+conf_ports=${conf_ports// /}
+#say "extracted ip=$ip"
+[ "$conf_ports" ] || {
+	exit_msg "Config Error: $conf_file - missing scaledb_cas_config_ports"
+}
+
+if [ -z "$no_nc" ];then
+	which nc >& /dev/null
+	if [ $? -eq 0 ];then
+		conf_ip1=`echo $conf_ips | cut -d ',' -f 1`
+		conf_port1=`echo $conf_ports |	cut -d ',' -f 1`
+		nc_output=`echo "PING" | nc $conf_ip1 $conf_port1`
+		if [ "$nc_output" !=  "PONG" ];then
+		    exit_msg "Fatal - failed to ping config CAS $conf_ip1:$conf_port1"
+		fi
+	fi
+else
+	say "Warning - testing of CAS config disabled by user defined parameter"
+fi
+
+#
+#	Starting scaledb_slm
+#
+if [ "$bin_dir" ];then
+	scaledb_slm=$bin_dir/scaledb_slm
+else
+	scaledb_slm=$def_bin_dir/scaledb_slm
+fi
+
+[ -x $scaledb_slm ] || {
+	exit_msg "error: file $scaledb_slm is not found or is not executable"
+}
+
+say "testing if we can start on this port"
+netstat -lnt	| awk '{print $4}' | grep ":$port$" >/dev/null
+if [ $? = 0 ] ; then
+	exit_msg "Error - address availability check failed, make sure $ip:$port is available"
+fi
+
+attempts=20
+say "Starting scaledb_slm as "
+say "$scaledb_slm $conf_file " 
+if [ "$daemon" ];then
+	nohup $scaledb_slm $conf_file >&/dev/null	&
+else
+	$scaledb_slm $conf_file >&/dev/null	&
+fi
+netstat -l -n	--protocol inet | awk '{print $4}' | grep ":$port$" >/dev/null
+while [ $? != 0 ];do
+	attempts=$(($attempts-1))
+	[ $attempts -ne 0 ] || {
+		exit_msg "Error: failed to start scaledb_slm"
+	}
+	say "waiting for scaledb_slm to start ($attempts) "
+	sleep 1
+	netstat -lnt	| awk '{print $4}' | grep ":$port$"	>/dev/null
+done
+
+echo "Ok"
+exit 0
+

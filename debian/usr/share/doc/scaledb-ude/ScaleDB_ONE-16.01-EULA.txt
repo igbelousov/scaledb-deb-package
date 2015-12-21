@@ -1,0 +1,209 @@
+END USER SOFTWARE LICENSE AGREEMENT
+
+THIS SCALEDB SOFTWARE LICENSE AGREEMENT ("AGREEMENT") GOVERNS THE INSTALLATION
+AND USE OF THE SCALEDB SOFTWARE DESCRIBED HEREIN. YOU WILL BE REQUIRED
+TO INDICATE YOUR AGREEMENT TO THESE TERMS AND CONDITIONS IN ORDER TO DOWNLOAD
+THE SOFTWARE, REGISTER THE SOFTWARE WITH SCALEDB AND TO INSTALL AND OPERATE
+THE SOFTWARE. BY CLICKING ON THE "YES" BUTTON, CHECKBOX OR OTHER BUTTON OR
+MECHANISM DESIGNED TO ACKNOWLEDGE AGREEMENT TO THE TERMS OF AN ELECTRONIC COPY
+OF THIS AGREEMENT, OR DOWNLOADING OR INSTALLING THE SOFTWARE, OR USING ANY MEDIA
+THAT CONTAINS THE SOFTWARE, YOU ARE CONSENTING TO BE BOUND BY THIS AGREEMENT,
+INCLUDING ALL TERMS INCORPORATED BY REFERENCE. THIS AGREEMENT IS ENFORCEABLE
+AGAINST ANY PERSON OR ENTITY THAT USES THE SOFTWARE AND ANY PERSON OR ENTITY
+THAT USES THE SOFTWARE ON ANOTHER PERSON'S OR ENTITY'S BEHALF. YOU AGREE THAT
+THIS AGREEMENT IS EQUIVALENT TO ANY WRITTEN NEGOTIATED AGREEMENT SIGNED BY YOU.
+IF YOU AGREE TO THESE TERMS ON BEHALF OF A BUSINESS OR A GOVERNMENT AGENCY,
+DEPARTMENT OR INSTRUMENTALITY, YOU REPRESENT AND WARRANT THAT YOU HAVE AUTHORITY
+TO BIND THAT BUSINESS TO THIS AGREEMENT, AND YOUR AGREEMENT TO THESE TERMS WILL
+BE TREATED AS THE AGREEMENT OF THE BUSINESS. IN THAT EVENT, "YOU" AND "YOUR"
+REFER HEREIN TO THAT BUSINESS.
+THE TERMS OF THIS AGREEMENT MAY BE UPDATED BY SCALEDB FROM TIME TO TIME.
+
+1. DEFINITIONS.
+  1.1 “Applications” means computer software products that interface with
+      the Software, either directly or through third-party software such as
+      MySQL or MariaDB.
+  1.2 “Excluded Causes” means (a) any modification, reconfiguration, or
+      maintenance of the Software performed by any party other than ScaleDB;
+      (b) any use of the Software on a system that does not meet ScaleDB’s
+      minimum standards for such Software, including use on a modified or
+      unsupported operating system or environment (c) any hardware or
+      non-ScaleDB software; (d) failure to implement all Updates issued
+      by ScaleDB; (e) use of the Software in a manner for which it was not
+      designed; and/or (f) accident, negligence, or misuse of the Software.
+  1.3 “Software” means the ScaleDB ONE Version 16.01 software, in object code
+      form, plus any related documentation, scripts, or complementary
+      applications and any subsequent software releases provided to You under
+      this Agreement.
+  1.4 “Cluster” means a set of components of the Software, running on multiple
+      machines, virtual machines, containers or cloud images, networked together
+      to form a database system. Replicating from an instance of Software to
+      another instance of Software solely for purposes of providing failover to
+      the master instance, does not constitute a Cluster.
+  1.5 “Support” has the meaning described in Exhibit B.
+  1.6 “Update” means a new generally-released version of the Software
+      designated, in ScaleDB’s sole discretion, with a version number changed
+      to the right or the left of the first decimal point.
+
+2. LICENSES.
+  2.1 License to Software.  Subject to the terms and conditions of this
+      Agreement, ScaleDB grants to You a nonexclusive license to use all the
+      components of the Software on only one machine, virtual machine,
+      container or cloud image. This license is granted to You to operate
+      Software on your own hardware or a third party’s computing
+      infrastructure. Use of the Software components to form a cluster on
+      additional machines, or virtual machines, containers or cloud images,
+      requires a license to ScaleDB Cluster, a different product that is not
+      licensed under this agreement. Use of Software beyond the above licensed
+      uses, or on more than one instance, or running on more than one machine,
+      or virtual machine, container or cloud image to form a cluster, shall be
+      considered a material breach of this Agreement.
+  2.2 Restrictions.  Unless explicitly noted, ScaleDB’s license grants are not
+      transferable, assignable, or sublicenseable.   You shall not, nor shall
+      You permit a third party to, decompile, reverse engineer, or disassemble
+      the Software’s source code or attempt to discover any portion of the
+      source code or any trade secrets with respect to the Software. Further,
+      You shall not, nor shall You allow a third-party to, combine, repackage,
+      or bundle Software with any other software or hardware that violates the
+      terms of the other software or hardware license. ScaleDB and its licensors
+      retain all rights, title, and interest in and to all intellectual property
+      rights embodied in or associated with the Software.  There are no implied
+      licenses under this Agreement (by implication, estoppel, or otherwise),
+      and any rights not expressly granted to You under this Agreement are
+      reserved by ScaleDB or its licensors.
+
+3. WARRANTY AND DISCLAIMER.
+  3.1 Performance Warranty.  ScaleDB does not warrant that operation of the
+      Software will be uninterrupted, secure, or error free, or that all errors
+      will be corrected.  ScaleDB further does not warrant that the information
+      stored or transmitted by the Software is free from unauthorized
+      modification.
+  3.2 Disclaimer.  EXCEPT AS EXPRESSLY SET FORTH IN THIS SECTION 3, SCALEDB AND
+      ITS LICENSORS DISCLAIM ALL OTHER WARRANTIES AND CONDITIONS, EXPRESS,
+      IMPLIED, OR STATUTORY, INCLUDING WITHOUT LIMITATION THE IMPLIED WARRANTIES
+      OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+      NONINFRINGEMENT.  Each party acknowledges that it has not entered into
+      this Agreement in reliance upon any warranty or representation except
+      those specifically set forth herein.
+
+4. TERM AND TERMINATION.
+  4.1 Term.  This Agreement shall commence upon Your approval of this Agreement,
+      or the download or installation of Software, and shall continue in force
+      until terminated.  By providing written notice, either party may terminate
+      this Agreement upon the material breach of the other party of the terms of
+      this Agreement, if such default continues for 30 days after written
+      notice.
+  4.2 Effect of Termination.  Upon termination of this Agreement, all license
+      rights granted under this Agreement immediately terminate, except as
+      expressly specified otherwise. The provisions of Sections 1, 2.2, 3, 4.2,
+      5.2, 6, and 7 and Your obligation to pay any owed but unpaid amounts,
+      shall survive the termination of this Agreement for any reason.
+
+5. INDEMNITY.
+  5.1 ScaleDB’s Indemnity.  ScaleDB may defend or settle any claims that You may
+      incur that arise out of infringement by the Software of any copyright,
+      trade secret, or U.S. patent right existing or issued as of the date that
+      ScaleDB initially provided the applicable Software version or release.
+      ScaleDB may, at its option and expense (in addition to fulfilling its
+      indemnity obligations above): (a) replace the Software with substantially
+      equivalent Software that could not reasonably infringe; (b) modify
+      the Software so that it no longer could reasonably infringe but remains
+      substantially equivalent; (c) obtain for You the right to continue its
+      license rights to the Software; or (d) if none of the foregoing is
+      reasonably available, terminate Your license to such Software.
+      ScaleDB will not be liable for claims based upon: (a) the use or
+      combination of the Software with Software, hardware, or other materials
+      not provided by ScaleDB if infringement would not have occurred in
+      the absence of such combination; (b) any marking or branding not applied
+      by ScaleDB (or at the request of an authorized ScaleDB employee);
+      or (c) any use of an altered or modified version of the Software if
+      infringement would not have occurred but for the alteration
+      or modification.  THIS SECTION STATES SCALEDB’S AND ITS LICENSORS’ SOLE
+      AND EXCLUSIVE OBLIGATION WITH RESPECT TO INFRINGEMENT CLAIMS.
+  5.2 Your Indemnity. You may defend or settle any claims which ScaleDB or its
+      licensors may incur that arise out of the Applications (excluding
+      the Software) or Your acts, omissions, misrepresentations, or failure
+      to comply with applicable laws or regulations, and You shall indemnify
+      ScaleDB and its licensors for all claims, losses, costs, damages,
+      and expenses, including reasonable attorneys’ fees, attributable to any
+      final judgment or settlement based on such claims.
+  5.3 Mechanics of Indemnity.  The foregoing indemnity obligations are
+      conditioned on the party seeking indemnification
+      (the “Indemnified Party”): (a) giving the proposed indemnifier
+      (the “Indemnifying Party”) notice of the relevant claim, (b) cooperating
+      with the Indemnifying Party, at the Indemnifying Party’s expense,
+      in the defense of such claim, and (c) giving the Indemnifying Party
+      the right to control the defense and settlement of any such claim, except
+      that the Indemnifying Party shall not enter into any settlement that
+      affects the Indemnified Party’s rights or interest without the Indemnified
+      Party’s prior written approval.  The Indemnified Party shall have
+      the right to participate in the defense at its expense.
+
+6. LIMITATIONS ON LIABILITY.
+  6.1 EXCEPT WITH RESPECT TO ANY BREACHES OF SECTION 2 OR YOUR FAILURE TO COMPLY
+      WITH APPLICABLE LAWS OR REGULATIONS, IN NO EVENT SHALL EITHER PARTY
+      (OR SCALEDB’S LICENSORS) BE LIABLE FOR LOST PROFITS OR SPECIAL,
+      INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF OR IN CONNECTION
+      WITH THIS AGREEMENT (HOWEVER ARISING, INCLUDING NEGLIGENCE), EVEN IF
+      SUCH PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+      THIS LIMITATION OF LIABILITY SHALL APPLY NOTWITHSTANDING THE FAILURE
+      OF ESSENTIAL PURPOSE OF ANY LIMITED REMEDY HEREIN.
+  6.2 EXCEPT WITH RESPECT TO ANY BREACHES OF SECTION 2, OR YOUR FAILURE
+      TO COMPLY WITH APPLICABLE LAWS OR REGULATIONS, IN NO EVENT SHALL EITHER
+      PARTY’S LIABILITY RELATED TO THIS AGREEMENT EXCEED THE LICENSE FEES
+      ACTUALLY PAID TO SCALEDB BY YOU.
+
+7. GENERAL.
+  7.1 Governing Law.  This Agreement will be governed by California law without
+      regard to conflict of laws or principles.  Both parties submit to personal
+      jurisdiction in California and agree that any cause of action arising
+      under this Agreement must be brought in a federal or state court having
+      within its venue San Mateo County, California.
+  7.2 Assignment.  Neither party may assign its rights or delegate its duties
+      under this Agreement without the other party’s prior written consent,
+      except that a party may assign its rights and delegate its duties
+      (in whole, but not in part) to an assignee who buys or is transferred all
+      or substantially all the party’s assets or equity, unless the assignee is
+      reasonably deemed a direct competitor of the other party.  Any attempted
+      assignment or delegation in violation of the foregoing shall be void.
+      The parties’ rights and obligations will bind and inure to the benefit
+      of their respective successors and permitted assigns.
+  7.3 Severability; Waiver.  If any provision of this Agreement is held to be
+      invalid or unenforceable for any reason, the remaining provisions will
+      continue in full force without being impaired or invalidated in any way.
+      The parties agree to replace any invalid provision with a valid provision
+      which most closely approximates the intent and economic effect of
+      the invalid provision.  The waiver by either party of a breach of any
+      provision of this Agreement will not operate or be interpreted as a waiver
+      of any other or subsequent breach.
+  7.4 Force Majeure.  If performance of this Agreement, or any obligation under
+      this Agreement (other than the making of payments), is interfered with by
+      any act or condition beyond the reasonable control of the affected party,
+      the party so affected, upon giving prompt notice to the other party, will
+      be excused from such performance to the extent of such condition.
+  7.5 Government License.  If the License is being acquired by or on behalf of
+      the U.S. Government or by a U.S. Government prime contractor or
+      subcontractor (at any tier), in accordance with 48 C.F.R. 227.7202-4
+      (for Department of Defense acquisitions) and 48 C.F.R. 2.101 and 12.212
+      (for non-Department of Defense acquisitions), the government's rights in
+      such code and any documentation, including its rights to use, modify,
+      reproduce, release, perform, display or disclose such code or
+      documentation, will be subject in all respects to the license rights and
+      restrictions provided in this Agreement.
+  7.6 Independent Contractors.  The parties to this Agreement are independent
+      contractors, and no agency, partnership, joint venture,
+      or franchisor-franchisee relationship is intended or created by
+      this Agreement.
+  7.7 Notice.  Any notices required or permitted under this Agreement shall be
+      given via the email address provided by You or at such other address as a
+      You shall specify in writing.  Notice shall be deemed given within 8 hours
+      of sending the appropriate email.
+  7.8 Entire Agreement and Amendment.  This Agreement and the attached Exhibits
+      set forth the entire understanding and agreement of the parties,
+      and supersede any and all oral or written agreements or understandings
+      between the parties as to the subject matter of this Agreement.
+      This Agreement shall control over any conflicting provisions of
+      any purchase order or other similar business form, and such conflicting
+      provisions are expressly rejected.  In the event of any conflict between
+      the Agreement and an Exhibit, the terms of the Exhibit shall control.
+      This Agreement may be updated by ScaleDB from time to time.

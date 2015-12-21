@@ -1,0 +1,9 @@
+scaledb_data_directory = /var/lib/scaledb
+scaledb_log_directory = /var/log/scaledb
+scaledb_cas_server_ips = 127.0.0.1
+scaledb_cas_server_ports = 13306
+
+#scaledb_buffer_size_data = 4G
+#scaledb_buffer_size_blob = 10M
+
+cas_type=PRIMARY

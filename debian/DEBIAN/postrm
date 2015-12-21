@@ -1,0 +1,55 @@
+#!/bin/bash -e
+
+stop_server() {
+  set +e
+  if [ -x /usr/sbin/invoke-rc.d ]; then
+    invoke-rc.d mysql stop
+    invoke-rc.d scaledb_slm stop
+    invoke-rc.d scaledb_cas stop
+  else
+    /etc/init.d/mysql stop
+    /etc/init.d/scaledb_slm stop
+    /etc/init.d/scaledb_cas stop
+  fi
+  errno=$?
+  set -e
+
+  if [ "$errno" != 0 ]; then
+    echo "Stoping the services resulted in exitcode $errno." 1>&2
+    exit 1
+  fi
+}
+
+case "$1" in
+  purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+      stop_server
+      sleep 2
+  ;;
+  *)
+    echo "postrm called with unknown argument '$1'" 1>&2
+    exit 1
+  ;;
+esac
+
+update-rc.d scaledb_slm remove
+update-rc.d scaledb_cas remove
+
+if [ -d /var/log/scaledb ];then
+  rm /var/log/scaledb -rf
+fi
+
+if [ -d /var/lib/scaledb ];then
+  rm /var/lib/scaledb -rf
+fi
+
+if [ -d /var/run/scaledb ];then
+  rm /var/run/scaledb -rf
+fi
+
+if [ -d /etc/scaledb ];then
+  rm /etc/scaledb -rf
+fi
+
+userdel scaledb
+
+exit 0

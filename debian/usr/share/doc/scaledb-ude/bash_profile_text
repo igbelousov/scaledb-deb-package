@@ -1,0 +1,24 @@
+Thanks for using ScaleDB ONE 16.01!
+Please note this is a preview and it should not be used in production.
+
+=== Technical Notes:
+MariaDB 10 is installed in /usr/local/mysql
+The data directory is /usr/local/mysql/data
+The configuration file (my.cnf) is in the base directory
+ScaleDB ONE 16.01 is installed in /usr/local/ScaleDB
+The configuration files (cas.cnf and slm.cnf are in the base directory)
+The ScaleDB configuration engine (scaledb.cnf) is in the data directory
+
+=== Two important commands:
+scaledb_one [start/stop]
+- This command restarts ScaleDB ONE. It is a wrapper for the single
+  starters, scaledb_cas, scaledb_slm and scaledb_mariadb
+scaledb_test
+- This commands executes a Python script that will provide an indication
+  of the performance of ScaleDB compared to InnoDB. InnoDB buffer pool and
+  ScaleDB cache should be modified to increase performance.
+
+=== Information and Feedback:
+- General info: visit http://www.scaledb.com
+- Documentation: http://wiki.scaledb.com
+- Feedback, comments, bugs: Email scaledb_one@googlegroups.com

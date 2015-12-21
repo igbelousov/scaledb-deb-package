@@ -1,0 +1,125 @@
+#!/bin/bash
+#
+# Copyright 2015 ScaleDB, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+#set -x
+
+SCALEDB_HOME='/usr/local/scaledb'
+MARIADB_HOME='/usr/local/mysql'
+
+
+# Start the service ScaleDB ONE
+start() {
+
+	if [ `pgrep -f ${SCALEDB_HOME}/lib/scaledb_cas | wc -l` -gt 0 ]
+  then
+    echo ScaleDB CAS is already running, stop CAS first or try scaledb_one restart.
+		exit 3
+	elif [ `pgrep -f ${SCALEDB_HOME}/lib/scaledb_slm | wc -l` -gt 0 ]
+  then
+    echo ScaleDB SLM is already running, stop SLM first or try scaledb_one restart.
+    exit 3
+	elif [ `pgrep -f ${MARIADB_HOME}/bin/mysqld_safe | wc -l` -gt 0 ]
+  then
+    echo MariaDB is already running, stop MariaDB first or try scaledb_one restart.
+    exit 3
+	elif [ `pgrep -f ${MARIADB_HOME}/bin/mysqld | wc -l` -gt 0 ]
+	then
+    echo MariaDB is already running, stop MariaDB first or try scaledb_one restart.
+    exit 3
+  fi
+
+	${SCALEDB_HOME}/scripts/scaledb_cas start
+	if [ $? -eq 1 ]
+	then
+		exit 1
+	fi
+	sleep 3
+
+	${SCALEDB_HOME}/scripts/scaledb_slm start
+	if [ $? -eq 1 ]
+	then
+		exit 1
+	fi
+	sleep 3
+
+	${SCALEDB_HOME}/scripts/scaledb_mariadb start
+	if [ $? -eq 1 ]
+	then
+		exit 1
+	fi
+
+	touch ${SCALEDB_HOME}/locks/scaledb_one_started
+  echo ScaleDB ONE started.
+
+}
+
+# Restart the service ScaleDB ONE
+stop() {
+
+	${SCALEDB_HOME}/scripts/scaledb_mariadb stop
+	if [ $? -eq 1 ]
+	then
+		exit 1
+	fi
+	sleep 3
+
+	${SCALEDB_HOME}/scripts/scaledb_cas stop
+	if [ $? -eq 1 ]
+	then
+		exit 1
+	fi
+	sleep 3
+
+	${SCALEDB_HOME}/scripts/scaledb_slm stop
+	if [ $? -eq 1 ]
+	then
+		exit 1
+	fi
+
+  touch ${SCALEDB_HOME}/locks/scaledb_one_stopped
+  echo ScaleDB ONE stopped.
+
+}
+
+# Status of ScaleDB ONE
+status() {
+	${SCALEDB_HOME}/scripts/scaledb_cas status
+	${SCALEDB_HOME}/scripts/scaledb_slm status
+	${SCALEDB_HOME}/scripts/scaledb_mariadb status
+}
+
+### main logic ###
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  status)
+        status
+        ;;
+  restart|reload|condrestart)
+        stop
+	sleep 3
+        start
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart|reload|status}"
+        exit 1
+esac
+exit 0

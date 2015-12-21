@@ -1,0 +1,31 @@
+#!/bin/bash -e
+
+SCALEDB_DATA_DIR="/var/lib/scaledb"
+SCALEDB_LOG_DIR="/var/log/scaledb"
+SCALEDB_LOCK_DIR="/var/lock/scaledb"
+
+if [ "`grep -c '^scaledb:' /etc/group`" = "0" ]; then
+        addgroup --system scaledb >/dev/null
+fi
+
+if [ "`grep -c '^scaledb:' /etc/passwd`" = "0" ]; then
+        adduser \
+          --system --disabled-login --ingroup scaledb \
+          --home $SCALEDB_DATA_DIR \
+          --gecos "ScaleDB" --shell /bin/false scaledb >/dev/null
+fi
+
+if [ ! -d $SCALEDB_DATA_DIR ];then
+  mkdir $SCALEDB_DATA_DIR
+  chown scaledb:scaledb $SCALEDB_DATA_DIR
+fi
+
+if [ ! -d $SCALEDB_LOG_DIR ];then
+  mkdir $SCALEDB_LOG_DIR
+  chown scaledb:scaledb $SCALEDB_LOG_DIR
+fi
+
+if [ ! -d $SCALEDB_LOCK_DIR ];then
+  mkdir $SCALEDB_LOCK_DIR
+  chown scaledb:scaledb $SCALEDB_LOCK_DIR
+fi

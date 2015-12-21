@@ -1,0 +1,4 @@
+/etc/scaledb/cas.cnf
+/etc/scaledb/slm.cnf
+/etc/init.d/scaledb_cas
+/etc/init.d/scaledb_slm

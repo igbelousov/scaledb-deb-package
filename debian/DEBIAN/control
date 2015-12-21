@@ -1,0 +1,16 @@
+Package: scaledb-ude
+Source: scaledb-ude-16.01.1
+Version: 16.01.1-1
+Architecture: amd64
+Maintainer: ScaleDB Support <support@scaledb.com>
+Installed-Size: 19716
+Depends: mariadb-server-10.1 (>= 10.1.8+maria-1~trusty), libaio1 (>= 0.3.93), libc6 (>= 2.17), libstdc++6 (>= 4.8), adduser (>=0.0)
+Conflicts: 
+Replaces: 
+Provides: scaledb-ude
+Section: database
+Priority: optional
+Homepage: http://www.scaledb.com/
+Description: ScaleDB Database Cluster UDE.
+ .
+ The best time streaming solution ever.

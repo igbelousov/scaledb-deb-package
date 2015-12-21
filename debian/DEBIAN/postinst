@@ -1,0 +1,55 @@
+#!/bin/bash -e
+
+SCALEDB_DATA_DIR="/var/lib/scaledb"
+SCALEDB_LOG_DIR="/var/log/scaledb"
+SCALEDB_LOCK_DIR="/var/lock/scaledb"
+SCALEDB_CONF_DIR="/etc/scaledb"
+MARIADB_DATA_DIR="/var/lib/mysql"
+
+if [ ! -d $SCALEDB_CONF_DIR ];then
+  mkdir $SCALEDB_CONF_DIR
+  chown scaledb:scaledb $SCALEDB_CONF_DIR
+fi
+
+cp /usr/share/scaledb-ude/cas.cnf $SCALEDB_CONF_DIR/
+cp /usr/share/scaledb-ude/slm.cnf $SCALEDB_CONF_DIR/
+cp /usr/share/scaledb-ude/scaledb.cnf $MARIADB_DATA_DIR/
+
+update-rc.d scaledb_cas defaults 15 25
+update-rc.d scaledb_slm defaults 17 23
+#
+# should be able to install scaledb 
+# without mysqld shuting down 
+#
+#/etc/init.d/mysql stop
+ln -s /usr/lib/scaledb/ha_scaledb.so /usr/lib/mysql/plugin/
+echo "/usr/lib/scaledb/" > /etc/ld.so.conf.d/scaledb.conf
+
+if which invoke-rc.d >/dev/null 2>&1; then
+     		invoke-rc.d scaledb_cas start
+     		invoke-rc.d scaledb_slm start
+else
+     		/etc/init.d/scaledb_cas start
+     		/etc/init.d/scaledb_slm start
+fi
+
+#/etc/init.d/scaledb_mariadb start
+
+echo "Installing ScaleDB Plugin"
+
+set +e
+max_attempts=120
+attempts=0
+while [[ $attempts -lt $max_attempts ]];do
+  attempts=$(($attempts+1))
+  /usr/bin/mysql -uroot -e 'select 1' &>/dev/null
+  if [ $? -eq 0 ];then
+     set -e
+     echo "INSTALL PLUGIN SCALEDB SONAME 'ha_scaledb.so'" | /usr/bin/mysql -uroot
+     echo "Success!"
+     exit 0
+  fi
+  sleep 1
+done
+echo "Failed.."
+exit 1

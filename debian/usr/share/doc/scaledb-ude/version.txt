@@ -1,0 +1,5 @@
+product=scaledb
+mysql_version=10.0-scaledb-4412
+name=P13199
+build_type=release
+package_name=scaledb-10.0-scaledb-4412-P13199-RELEASE

@@ -1,0 +1,18 @@
+scaledb_data_directory = /tmp/scaledb
+scaledb_log_directory = /tmp/scaledb
+
+scaledb_buffer_size_index = 10M
+scaledb_buffer_size_data  = 30M
+scaledb_buffer_size_blob  = 30M
+
+scaledb_cas_server_ips=127.0.0.1
+scaledb_cas_server_ports=13306
+
+scaledb_cas_config_ips=127.0.0.1
+scaledb_cas_config_ports=13306
+
+slm_ip=127.0.0.1
+slm_port=43306
+
+scaledb_debug_file=/tmp/scaledb/cas_debug.txt
+slm_debug_file=/tmp/scaledb/slm_debug.txt

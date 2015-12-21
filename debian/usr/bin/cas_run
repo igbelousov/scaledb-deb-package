@@ -1,0 +1,289 @@
+#!/bin/bash
+
+#
+# $Id: cas_run,v 1.1 2015-12-18 00:18:18 igor Exp $
+#
+
+#
+# ScaleDB Cache Server Startup script
+#
+
+
+print_help_and_exit () {
+
+	echo ""
+	echo "Usage: cas_run [Options]"
+	echo ""
+	echo "Options:"
+	echo "         -f config_file       Path to the global configuration [$def_conf_file]"
+	echo "         -b scaledb_bin_dir   Path to the scaledb binaries	 [$def_bin_dir]"
+	echo "         -s shard_id          Primary Shard id [1]"
+	echo "         -n name              CAS name, only use when running cluster on single box"
+	echo "         -m                   This is Mirror"
+	echo "         -h                   Display this help"
+	echo "         -v                   Explains what it does"
+	echo "         -x                   Cleans directories before start"
+	echo "         -d                   Runs as a daemon using nohup"
+	echo ""
+	echo "Examples:"
+
+	echo "        # get help message:"
+	echo "        cas_run "
+	echo ""
+
+	echo "        # run 2nd volume (formely shard#2) using config /etc/scaledb_global.cnf"
+	echo "        cas_run -f /etc/scaledb_global.cnf -s 2"
+	echo ""
+
+	exit 0
+}
+
+exit_msg () {
+	echo "$@"
+	exit 1
+}
+
+say () {
+	[ "$verbose" ] && echo "$@"
+}
+
+if [ $# -eq 0 ];then
+	print_help_and_exit	
+fi
+
+casname=
+clean_flg=
+daemon_flg=
+shard_id=1
+scripts_dir=`dirname $0`
+parent_dir=$scripts_dir/../
+
+# to look better in ps output (avoiding /../..)
+cd $parent_dir
+def_bin_dir="$PWD/lib"
+def_lib_dir="$PWD/lib"
+def_conf_dir="$PWD/conf"
+def_conf_file="$def_conf_dir/scaledb_global.cnf"
+cd $OLDPWD
+
+say def_conf_dir = $def_conf_dir
+
+TEMP=`/usr/bin/getopt 'f:s:b:n:hvmdx' "$@"`
+
+if [ $? != 0 ] ; then
+	echo "usage error: parsing command-line arguments" >&2
+	exit 1
+fi
+
+eval set -- "$TEMP"
+while true ; do
+	case "$1" in
+		-b) bin_dir="$2"			;	shift 2 ;;
+		-f) conf_file="$2"		;	shift 2 ;;
+		-m) mirror="y"			;	shift 1 ;;
+		-n) casname="$2"        ;   shift 2 ;;
+		-s) shard_id="$2"		 ;	shift 2 ;;
+		-h) help="y"				;	shift 1 ;;
+		-v) verbose="y"			;	shift 1 ;;
+		-x) clean_flg="y"		;	shift 1 ;;
+		-d) daemon_flg="y"		;	shift 1 ;;
+		--) shift				 ;	break	;;
+		*) echo "getopt error: parsing command line arguments" >&2 ; exit 1 ;;
+	esac
+done
+
+if [ "$help" ];then 
+	print_help_and_exit
+fi
+
+#
+# Determine where is config directory
+# with respect to scripts directory
+#
+if	[ "$conf_file" ];then
+	conf_dir=`dirname $conf_file`
+else
+	conf_file=$def_conf_file
+fi
+
+#
+# Exit when file is missing
+#
+[ -f "$conf_file" ] || exit_msg "error: failed to open file - $conf_file"
+
+#
+# Exit when file is not writable
+#
+[ -w "$conf_file" ] || exit_msg "error: config file is not writable - $conf_file"
+
+#
+# Find ip and port based on shard_id
+#
+if [ "$mirror" ];then
+	ip=`grep "^ *scaledb_cas_mirror_ips" $conf_file | tail -n 1 |  cut -d '=' -f 2 |cut -d ',' -f $shard_id `
+else
+	ip=`grep "^ *scaledb_cas_server_ips" $conf_file | tail -n 1 | cut -d '=' -f 2 |cut -d ',' -f $shard_id `
+fi
+
+ip=${ip// /}
+say "extracted ip=$ip"
+[ "$ip" ] || {
+	exit_msg "Config Error: $conf_file - missing scaledb_cas_server_ips or scaledb_cas_mirror_ips"
+}
+
+if [ "$mirror" ];then
+	port=`grep "^ *scaledb_cas_mirror_ports" $conf_file | tail -n 1 | cut -d '=' -f 2 |cut -d ',' -f $shard_id `
+else
+	port=`grep "^ *scaledb_cas_server_ports" $conf_file | tail -n 1 | cut -d '=' -f 2 |cut -d ',' -f $shard_id `
+fi
+port=${port// /}
+say "extracted port=$port"
+[ "$port" ] || exit_msg "Config Error: $conf_file - missing scaledb_cas_server_ports or scaledb_cas_mirror_ports"
+
+#
+# Verify directories exists
+#
+
+# scaledb_data
+scaledb_data=`cat $conf_file | grep "^ *scaledb_data_directory *="	| tail -n 1 | cut -d '=' -f 2 `
+scaledb_data=${scaledb_data// /}
+if [ "$casname" ];then
+	scaledb_data="$scaledb_data/$casname"
+fi
+
+say "extracted scaledb_data=$scaledb_data"
+[ "$scaledb_data" ] || exit_msg "Config Error: $conf_file - missing scaledb_data_directory"
+
+if [ ! -d "$scaledb_data" ];then
+	echo "warn: directory $scaledb_data does not exist... creating"
+	mkdir -p "$scaledb_data"
+	[ $? = 0 ] || exit_msg "error: failed to create directory - $scaledb_data"
+	
+	touch $scaledb_data/test.txt >/dev/null
+	[ $? = 0 ] || {
+		exit_msg "error: failed	to test write in directory - $scaledb_data"
+	}	
+	rm $scaledb_data/test.txt
+fi
+
+if [ "$clean_flg" ];then
+	echo "Removing data files from data directory: $scaledb_data"
+	rm $scaledb_data/*.sdb 2>/dev/null
+	echo "Removing registry files"
+	rm $scaledb_data/*.registry 2>/dev/null
+fi
+
+#
+# Verify customer defined db directories exist
+#
+for db_dir in `cat $conf_file | grep "^ *scaledb_db_directory" | cut -d '=' -f 2 `;do
+	if [ "$casname" ];then db_dir="$db_dir/$casname";fi
+	if [ ! -d $db_dir ];then
+		echo "warn: directory $db_dir does not exist... creating"
+		mkdir -p $db_dir
+		[ $? = 0 ] || {
+			exit_msg "error: failed to create directory - $db_dir"
+		}
+	fi
+	touch $db_dir/test.txt >/dev/null
+	 [ $? = 0 ] || {
+		exit_msg "error: failed	to test write in directory - $db_dir"
+	}
+	rm $db_dir/test.txt
+	
+	if [ "$clean_flg" ];then
+		echo "Removing data files from db data directory: $db_dir"
+		rm $db_dir/*.sdb 2>/dev/null
+	fi
+done
+
+#:bug:1751:if [ $shard_id -eq 1 ];then
+	#
+	# scaledb_logs
+	#
+	scaledb_logs=`cat $conf_file | grep "^ *scaledb_log_directory *=" | tail -n 1 | cut -d '=' -f 2 `
+	scaledb_logs=${scaledb_logs// /}
+	if [ "$casname" ];then scaledb_logs="$scaledb_logs/$casname";fi
+	say "scaledb_logs=$scaledb_logs"
+	[ "$scaledb_logs" ] || {
+	 exit_msg "Config Error: $conf_file - missing scaledb_log_directory"
+	}
+	
+	if [ ! -d "$scaledb_logs" ] ; then
+		echo "warn: directory $scaledb_logs does not exist... creating"
+		mkdir -p "$scaledb_logs"
+		[ $? = 0 ] || {
+				exit_msg "error: failed to create directory - $scaledb_logs"
+		}
+	fi
+	 
+	touch $scaledb_logs/test.txt >/dev/null
+	[ $? = 0 ] || {
+		exit_msg "error: failed	to test write in directory - $scaledb_logs"
+	}	
+	rm $scaledb_logs/test.txt
+	
+	if [ "$clean_flg" ];then
+		echo "Removing log files from log directory: $scaledb_logs"
+		rm $scaledb_logs/*.sdb 2>/dev/null
+	fi
+#:bug:1751:fi
+
+#
+# scaledb_debug_file
+#
+scaledb_debug_file=`cat $conf_file | grep "^ *scaledb_debug_file *=" | tail -n 1 | cut -d '=' -f 2 `
+[ "$scaledb_debug_file" ] && {
+	scaledb_debug_file=${scaledb_debug_file// /}
+	scaledb_debug_file_dir=`dirname $scaledb_debug_file`
+	if [ "$casname" ];then scaledb_debug_file_dir="$scaledb_debug_file_dir/$casname";fi
+	if [ ! -d "$scaledb_debug_file_dir" ];then
+		echo "warn: directory for debug file $scaledb_debug_file_dir does not exist... creating"
+		mkdir -p "$scaledb_debug_file_dir"
+		[ $? = 0 ] || {
+			exit_msg "error: failed to create directory - $scaledb_debug_file_dir"
+		}
+	fi
+}
+
+#
+#	Starting scaledb_cas
+#
+if [ "$bin_dir" ];then
+	scaledb_cas=$bin_dir/scaledb_cas
+else
+	scaledb_cas=$def_bin_dir/scaledb_cas
+fi
+
+[ -x $scaledb_cas ] || {
+	exit_msg "error: file $scaledb_cas is not found or is not executable"
+}
+
+say "testing if we can start on this port"
+netstat -lnt	| awk '{print $4}' | grep ":$port$" >/dev/null
+if [ $? = 0 ] ; then
+	exit_msg "Error - address availability check failed, make sure $ip:$port is available"
+fi
+
+attempts=200
+say "Starting scaledb_cas for shard $shard_id with following command line options:"
+say "$scaledb_cas $conf_file $ip $port " 
+if [ "$daemon_flg" ];then
+	nohup $scaledb_cas $conf_file $ip $port $casname >&/dev/null	&
+else
+	$scaledb_cas $conf_file $ip $port $casname >&/dev/null &
+fi
+
+netstat -l -n	--protocol inet | awk '{print $4}' | grep ":$port$" >/dev/null
+while [ $? != 0 ];do
+	attempts=$(($attempts-1))
+	[ $attempts -ne 0 ] || {
+		exit_msg "Error: failed to start scaledb_cas"
+	}
+	say "waiting for scaledb_cas to start ($attempts) "
+	sleep 1
+	netstat -lnt	| awk '{print $4}' | grep ":$port$"	>/dev/null
+done
+
+echo "Ok"
+exit 0
