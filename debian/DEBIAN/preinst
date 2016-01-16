@@ -1,14 +1,30 @@
 #!/bin/bash -e
 
+set -e
+
+echo "IGOR_NEW_PREINST:$@"
+SDB_DEBUG_INFO=1
 SCALEDB_DATA_DIR="/var/lib/scaledb"
 SCALEDB_LOG_DIR="/var/log/scaledb"
 SCALEDB_LOCK_DIR="/var/lock/scaledb"
 
+debug_info () {
+  if test ! -z $SDB_DEBUG_INFO ; then
+    echo "IGOR_NEW_PREINST:  $1"
+  fi
+}
+
+debug_info 'verify scaledb group exists'
 if [ "`grep -c '^scaledb:' /etc/group`" = "0" ]; then
+       debug_info 'failed to find scaledb group'
+        debug_info "adding scaledb group"
         addgroup --system scaledb >/dev/null
 fi
 
+debug_info 'verify scaledb user exists'
 if [ "`grep -c '^scaledb:' /etc/passwd`" = "0" ]; then
+       debug_info 'failed to find scaledb user'
+       debug_info "adding scaledb user"
         adduser \
           --system --disabled-login --ingroup scaledb \
           --home $SCALEDB_DATA_DIR \
@@ -29,3 +45,5 @@ if [ ! -d $SCALEDB_LOCK_DIR ];then
   mkdir $SCALEDB_LOCK_DIR
   chown scaledb:scaledb $SCALEDB_LOCK_DIR
 fi
+
+exit 0

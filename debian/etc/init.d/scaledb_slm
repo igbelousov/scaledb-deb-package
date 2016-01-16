@@ -31,6 +31,7 @@
 ### END INIT INFO
 
 #set -x
+. /lib/lsb/init-functions
 
 SCALEDB_HOME="/usr/sbin"
 SCALEDB_BIN="/usr/bin"
@@ -43,7 +44,7 @@ start() {
 	if [ `pgrep -f ${SCALEDB_HOME}/scaledb_slm | wc -l` -gt 0 ]
   then
 		echo ScaleDB SLM is already running.
-    exit 3
+    exit 0
   fi
 
 	if [ ! -f ${SCALEDB_SLM_CONFIG} ]
@@ -53,14 +54,14 @@ start() {
 	fi
 
   echo Starting ScaleDB SLM server...
-  if [ `${SCALEDB_BIN}/slm_run -b ${SCALEDB_HOME} -f ${SCALEDB_SLM_CONFIG} -v | tail -1`='Ok' ]
+  if [ "`${SCALEDB_BIN}/slm_run -b ${SCALEDB_HOME} -f ${SCALEDB_SLM_CONFIG} -v | tail -1`"="Ok" ]
   then
     ### Create the lock file ###
     pgrep -f ${SCALEDB_HOME}/scaledb_slm > ${SCALEDB_LOCK_DIR}/scaledb_slm_started
     echo ScaleDB SLM server started.
   else
   	echo ERROR starting SLM Server.
-		exit 1
+	exit 1
   fi
 }
 
@@ -69,7 +70,7 @@ stop() {
 	if [ `pgrep -f ${SCALEDB_HOME}/scaledb_slm | wc -l` -eq 0 ]
 	then
 		echo It looks like ScaleDB SLM is not running.
-		exit 3
+		log_end_msg 0
 	fi
 
 	echo Stopping ScaleDB SLM server...

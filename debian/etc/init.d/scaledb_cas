@@ -44,7 +44,7 @@ start() {
 	if [ `pgrep -f ${SCALEDB_HOME}/scaledb_cas | wc -l` -gt 0 ]
 	then
 		echo ScaleDB CAS is already running.
-		exit 3
+		exit 0
 	fi
 
 	if [ ! -f ${SCALEDB_CAS_CONFIG} ]
@@ -89,7 +89,7 @@ init() {
 	if [ `pgrep -f ${SCALEDB_HOME}/scaledb_cas | wc -l` -gt 0 ]
 	then
 		echo ScaleDB CAS is already running.
-		exit 3
+		exit 0
 	fi
 
 	if [ ! -f ${SCALEDB_CAS_CONFIG} ]
@@ -113,7 +113,7 @@ init() {
 	fi
 
 	echo Initilizing ScaleDB CAS server...
-	if [ `${SCALEDB_BIN}/cas_run -b ${SCALEDB_HOME} -f ${SCALEDB_CAS_CONFIG} ${cas_id} ${cas_type} -d -v -x | tail -1`='Ok' ]
+	if [ "`${SCALEDB_BIN}/cas_run -b ${SCALEDB_HOME} -f ${SCALEDB_CAS_CONFIG} ${cas_id} ${cas_type} -d -v -x | tail -1`"="Ok" ]
 	then
 		### Create the lock file ###
 		pgrep -f ${SCALEDB_HOME}/scaledb_cas > $SCALEDB_LOCK_DIR/scaledb_cas_initialized
@@ -130,7 +130,7 @@ stop() {
 	if [ `pgrep -f ${SCALEDB_HOME}/scaledb_cas | wc -l` -eq 0 ]
 	then
 		echo It looks like ScaleDB CAS is not running.
-		exit 3
+		exit 0
 	fi
 
   echo Stopping ScaleDB CAS server...

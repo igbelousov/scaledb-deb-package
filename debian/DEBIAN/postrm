@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+echo "IGOR_NEW_POSTRM:$@"
+
 stop_server() {
   set +e
   if [ -x /usr/sbin/invoke-rc.d ]; then
@@ -20,7 +22,9 @@ stop_server() {
   fi
 }
 
-case "$1" in
+action=$1
+echo "IGOR_NEW_POSTRM: action=$action"
+case "$action" in
   purge|remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
       stop_server
       sleep 2
@@ -31,25 +35,31 @@ case "$1" in
   ;;
 esac
 
-update-rc.d scaledb_slm remove
-update-rc.d scaledb_cas remove
+update-rc.d -f scaledb_slm remove
+update-rc.d -f scaledb_cas remove
 
-if [ -d /var/log/scaledb ];then
-  rm /var/log/scaledb -rf
+if test "$action" = "upgrade" ; then
+  echo "IGOR_NEW_POSTRM: action upgrade detected"
+else
+  echo "IGOR_NEW_POSTRM: another action detected"
+
+  if [ -d /var/log/scaledb ];then
+    rm /var/log/scaledb -rf
+  fi
+  
+  if [ -d /var/lib/scaledb ];then
+    rm /var/lib/scaledb -rf
+  fi
+  
+  if [ -d /var/run/scaledb ];then
+    rm /var/run/scaledb -rf
+  fi
+  
+  if [ -d /etc/scaledb ];then
+    rm /etc/scaledb -rf
+  fi
+  
+  userdel scaledb
 fi
-
-if [ -d /var/lib/scaledb ];then
-  rm /var/lib/scaledb -rf
-fi
-
-if [ -d /var/run/scaledb ];then
-  rm /var/run/scaledb -rf
-fi
-
-if [ -d /etc/scaledb ];then
-  rm /etc/scaledb -rf
-fi
-
-userdel scaledb
 
 exit 0

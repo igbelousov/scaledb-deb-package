@@ -18,6 +18,39 @@ if [ -z "$dpkg-deb" ];then
   exit 1
 fi
 
+#chrpath=`which chrpath 2>/dev/null`
+#if [ -z "$chrpath" ];then
+#  echo "ERROR - missing chrpath"
+#  exit 1
+#fi
+#
+strip=`which strip 2>/dev/null`
+if [ -z "$strip" ];then
+  echo "ERROR - missing strip"
+  exit 1
+fi
+
+if [ ! -f "debian/usr/lib/scaledb/ha_scaledb.so" ];then
+   echo "ERROR - missing ha_scaledb.so"
+   exit 1
+fi
+
+if [ ! -f "debian/usr/lib/scaledb/libscaledb.so" ];then
+   echo "ERROR - missing libscaledb.so"
+   exit 1
+fi
+
+if [ ! -f "debian/usr/sbin/scaledb_cas" ];then
+   echo "ERROR - missing usr/sbin/scaledb_cas"
+   exit 1
+fi
+
+if [ ! -f "debian/usr/sbin/scaledb_slm" ];then
+   echo "ERROR - missing usr/sbin/scaledb_slm"
+   exit 1
+fi
+
+
 set -e
 
 cd debian
@@ -37,6 +70,8 @@ find etc -type d -exec chmod 0755 {} \;
 chmod 0644 etc/scaledb/*.cnf 
 chmod 0755 etc/init.d/*
 chmod 0755 usr/bin/*
+chmod 0755 usr/sbin/*
+chmod 0755 usr/lib/*
 chmod 0644 usr/share/doc/scaledb-ude/ScaleDB_ONE-16.01-EULA.txt 
 chmod 0644 usr/share/doc/scaledb-ude/bash_profile_text
 chmod 0644 usr/share/doc/scaledb-ude/changelog.Debian.gz 
@@ -49,6 +84,13 @@ chmod 0755 usr/share/scaledb-ude/scaledb_mariadb
 chmod 0755 usr/share/scaledb-ude/scaledb_slm
 chmod 0644 usr/share/scaledb-ude/*.cnf
 find usr/ -type d -exec chmod 0755 {} \;
+
+echo "Stripping"
+strip --strip-debug --strip-unneeded usr/lib/scaledb/{ha_scaledb.so,libscaledb.so} usr/sbin/{scaledb_cas,scaledb_slm}
+echo "Running chrpath"
+#$chrpath --delete usr/lib/ha_scaledb.so
+#$chrpath --delete usr/lib/libscaledb.so
+
 cd ../
 
 if [ -f scaledb-ude-16.01.deb ];then
@@ -63,7 +105,7 @@ echo "Running fakeroot"
 $fakeroot dpkg-deb --build debian
 mv debian.deb scaledb-ude-16.01.deb
 
+set +e
 echo "Running lintian"
 $lintian scaledb-ude-16.01.deb >&lintian.out
-
 cat lintian.out
